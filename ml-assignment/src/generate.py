@@ -7,6 +7,7 @@ def main():
     # Train the model on the example corpus
     with open("data/example_corpus.txt", "r") as f:
         text = f.read()
+
     model.fit(text)
 
     # Generate new text
@@ -16,3 +17,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
