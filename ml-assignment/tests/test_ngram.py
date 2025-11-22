@@ -1,5 +1,11 @@
 import pytest
 from src.ngram_model import TrigramModel
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'src'))
+
+from ngram_model import TrigramModel
+
 
 def test_fit_and_generate():
     model = TrigramModel()
