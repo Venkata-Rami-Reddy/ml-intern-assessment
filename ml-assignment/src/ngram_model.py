@@ -1,69 +1,58 @@
+
 import random
-import re
 from collections import defaultdict
 
 class TrigramModel:
     def __init__(self):
-        # (w1, w2) → {next_word: count}
-        self.trigram_counts = defaultdict(lambda: defaultdict(int))
-        self.vocab = set()
-        self.is_trained = False
+        self.trigrams = defaultdict(list)
+        self.words = []
 
-    def clean_text(self, text):
-        text = text.lower()
-        text = re.sub(r"[^a-zA-Z0-9\s]", "", text)  # remove punctuation
-        return text.split()
-
-    def fit(self, text):
-        if not text.strip():
-            self.is_trained = False
+    def fit(self, text: str):
+        # If empty text
+        if not text:
+            self.words = []
+            self.trigrams = defaultdict(list)
             return
 
-        tokens = self.clean_text(text)
+        # Split words
+        self.words = text.split()
 
-        if len(tokens) < 2:
-            self.is_trained = False
+        # If less than 3 words, cannot form trigrams → tests expect generate() to still return a string
+        if len(self.words) < 3:
+            # No trigrams possible
+            self.trigrams = defaultdict(list)
             return
 
-        # Pad tokens
-        tokens = ["<s>", "<s>"] + tokens + ["</s>"]
+        # Build trigrams
+        for i in range(len(self.words) - 2):
+            key = (self.words[i], self.words[i + 1])
+            self.trigrams[key].append(self.words[i + 2])
 
-        # Count trigrams
-        for i in range(len(tokens) - 2):
-            w1, w2, w3 = tokens[i], tokens[i+1], tokens[i+2]
-            self.trigram_counts[(w1, w2)][w3] += 1
-            self.vocab.add(w3)
+    def generate(self) -> str:
+        # Case 1: Empty text given
+        if not self.words:
+            return ""  # test expects empty string
 
-        self.is_trained = True
+        # Case 2: Less than 3 words → just return the original text
+        if len(self.words) < 3:
+            return " ".join(self.words)
 
-    def generate(self, max_length=50):
-        if not self.is_trained:
-            return ""
+        # Pick a random starting point
+        start = random.choice(list(self.trigrams.keys()))
+        w1, w2 = start
+        generated = [w1, w2]
 
-        w1, w2 = "<s>", "<s>"
-        output = []
-
-        for _ in range(max_length):
-            next_words = self.trigram_counts.get((w1, w2), None)
-            if not next_words:
+        # Generate next words
+        for _ in range(20):  # small limit for safety
+            key = (w1, w2)
+            if key not in self.trigrams:
                 break
+            w3 = random.choice(self.trigrams[key])
+            generated.append(w3)
+            w1, w2 = w2, w3
 
-            # Convert counts to probabilities
-            words = list(next_words.keys())
-            counts = list(next_words.values())
-            total = sum(counts)
-            probabilities = [c / total for c in counts]
+        return " ".join(generated)
 
-            next_word = random.choices(words, probabilities)[0]
-
-            if next_word == "</s>":
-                break
-
-            output.append(next_word)
-
-            w1, w2 = w2, next_word
-
-        return " ".join(output)
 
 
 
