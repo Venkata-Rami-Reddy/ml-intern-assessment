@@ -1,42 +1,47 @@
 import random
+from collections import defaultdict
 
 class TrigramModel:
     def __init__(self):
-        """
-        Initializes the TrigramModel.
-        """
-        # TODO: Initialize any data structures you need to store the n-gram counts.
-       
-        pass
+        self.trigrams = defaultdict(list)
+        self.start_words = []
 
-    def fit(self, text):
-        """
-        Trains the trigram model on the given text.
+    def fit(self, text: str):
+        # Handle empty text
+        if not text or len(text.split()) < 3:
+            self.start_words = []
+            self.trigrams = defaultdict(list)
+            return
 
-        Args:
-            text (str): The text to train the model on.
-        """
-        # TODO: Implement the training logic.
-        # This will involve:
-        # 1. Cleaning the text (e.g., converting to lowercase, removing punctuation).
-        # 2. Tokenizing the text into words.
-        # 3. Padding the text with start and end tokens.
-        # 4. Counting the trigrams.
-        pass
+        words = text.split()
 
-    def generate(self, max_length=50):
-        """
-        Generates new text using the trained trigram model.
+        # Collect start words
+        self.start_words = [(words[i], words[i+1]) for i in range(len(words) - 2)]
 
-        Args:
-            max_length (int): The maximum length of the generated text.
+        # Build trigram table
+        for i in range(len(words) - 2):
+            key = (words[i], words[i+1])
+            self.trigrams[key].append(words[i+2])
 
-        Returns:
-            str: The generated text.
-        """
-        # TODO: Implement the generation logic.
-        # This will involve:
-        # 1. Starting with the start tokens.
-        # 2. Probabilistically choosing the next word based on the current context.
-        # 3. Repeating until the end token is generated or the maximum length is reached.
-        pass
+    def generate(self):
+        # If no data learned, return empty string
+        if not self.start_words or not self.trigrams:
+            return ""
+
+        # Pick random starting pair
+        current = list(random.choice(self.start_words))
+        result = current.copy()
+
+        # Generate next words
+        for _ in range(20):  # limit length
+            key = tuple(current)
+            if key not in self.trigrams:
+                break
+            next_words = self.trigrams[key]
+            next_word = random.choice(next_words)
+            result.append(next_word)
+
+            current = [current[1], next_word]
+
+        return " ".join(result)
+
