@@ -1,11 +1,41 @@
 # Trigram Language Model
 
-This directory contains the core assignment files for the Trigram Language Model.
+This assignment implements a simple Trigram Language Model for generating text based on a training corpus.
 
-## How to Run 
+## 📌 How to Run the Code
 
-    # Instructions on how to run. (filled by you)
+### 1️⃣ Install required packages
+From inside the `ml-assignment` folder, run:
 
-## Design Choices
+```
+pip install -r requirements.txt
+```
 
-Please document your design choices in the `evaluation.md` file. This should be a 1-page summary of the decisions you made and why you made them.
+### 2️⃣ Run the test suite (to validate your model)
+```
+pytest -vv
+```
+
+### 3️⃣ Train the model & generate text
+To generate text using the example corpus:
+
+```
+python src/generate.py
+```
+
+This will:
+- train the trigram model using `data/example_corpus.txt`
+- print generated text to the console
+
+## 📁 Project Structure
+
+```
+ml-assignment/
+│── data/
+│   └── example_corpus.txt
+│── src/
+│   ├── ngram_model.py
+│   ├── utils.py
+│   └── generate.py
+│── tests/
+│   └
